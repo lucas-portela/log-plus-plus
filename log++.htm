@@ -48,12 +48,12 @@
 				color:white;
 			}
 		</style>
-		<script src="log++.js"></script>
+		<script src="logpp.js"></script>
 	</head>
 	<body>
-		<span style="font-size:12px;color:red;">Obs.: Esta vers„o do Projeto suporta Vari·veis, Predicados, Listas, os operadores <i>cut</i> e <i>fail</i> e Coment·rios com <b>%</b> e <b>/* ... */</b></span><br>
+		<span style="font-size:12px;color:red;">Obs.: Esta vers√£o do Projeto suporta Vari√°veis, Predicados, Listas, os operadores <i>cut</i> e <i>fail</i> e Coment√°rios com <b>%</b> e <b>/* ... */</b></span><br>
 		<h1>LOG++ v15</h1>
-		<h5>Desenvolvido em 01/10/2014 por Lucas Santana no Centro de Pesquisa em Arquitetura da InformaÁ„o - UnB</h5>
+		<h5>Desenvolvido em 01/10/2014 por Lucas Santana no Centro de Pesquisa em Arquitetura da Informa√ß√£o - UnB</h5>
 		<b>Consulta:</b><br>
 		<center><span style="width:7%">?- </span><input type="text" id="consulta" value="hanoi(3)." onkeydown="if(event.keyCode==13)Consultar();"></center><br>
 		<center>
@@ -89,7 +89,7 @@ inform(N,X, Y) :-
 	nl.</textarea></td>
 			</tr>
 		</table>
-		<b>DepuraÁ„o:</b>
+		<b>Depura√ß√£o:</b>
 		<script>
 			var bf=document.getElementById("bf");
 			var saida=document.getElementById("saida");
@@ -145,14 +145,14 @@ inform(N,X, Y) :-
 			{
 				if(provador==undefined)
 				{
-					println("% Erro ao Consultar: Certifique-se de que h· um banco de fatos e uma consulta e n„o h· nenhum erro de sint·xe em ambos! %");
+					println("% Erro ao Consultar: Certifique-se de que h√° um banco de fatos e uma consulta e n√£o h√° nenhum erro de sint√°xe em ambos! %");
 					return;
 				}
 				var ti=(new Date()).getTime();
 				var r=provador.Provar();
 				var tf=(new Date()).getTime();
 				var deltaT=tf-ti;
-				println("Tempo de execuÁ„o: "+deltaT+" ms");
+				println("Tempo de execu√ß√£o: "+deltaT+" ms");
 				if(r)
 				{
 					if(provador.tipo==FATO)
@@ -190,11 +190,11 @@ inform(N,X, Y) :-
 			{
 				if(bancoFatos==undefined)
 				{
-					println("% Erro ao Consultar: O Banco de Fatos est· indefinido! %");
+					println("% Erro ao Consultar: O Banco de Fatos est√° indefinido! %");
 				}
 				else if(consulta.value=="")
 				{
-					println("% Erro ao Consultar: O campo de consulta est· vazio! %");
+					println("% Erro ao Consultar: O campo de consulta est√° vazio! %");
 				}
 				else
 				{
