@@ -1,0 +1,221 @@
+<html>
+	<head>
+		<title>LOG++</title>
+		<style>
+			body
+			{
+				font-family:Sans;
+				color:white;
+				background:black;
+				border:solid white 3px;
+				padding:2%;
+			}
+			textarea
+			{
+				width:99%;
+				height:99%;
+				margin:0.5%;
+				color:green;
+				font-weight:normal;
+				background:white;
+				letter-spacing: 2px;
+			}
+			#debugout
+			{
+				font-weight:normal;
+				background:white;
+				letter-spacing: 1px;
+				font-size:12px;
+			}
+			#consulta
+			{
+				width:97%;
+				color:green;
+				font-weight:normal;
+				background:white;
+				font-family:Sans;
+				letter-spacing: 2px;
+			}
+			table
+			{
+				width:99%;
+				margin:0.5%;
+				height:70%;
+				border:solid white 3px;
+			}
+			a
+			{
+				color:white;
+			}
+		</style>
+		<script src="logpp.js"></script>
+	</head>
+	<body>
+		<span style="font-size:12px;color:red;">Obs.: Esta versão do Projeto suporta Variáveis, Predicados, Listas, os operadores <i>cut</i> e <i>fail</i> e Comentários com <b>%</b> e <b>/* ... */</b></span><br>
+		<h1>LOG++ v15</h1>
+		<h5>Desenvolvido em 01/10/2014 por Lucas Santana no Centro de Pesquisa em Arquitetura da Informação - UnB</h5>
+		<b>Consulta:</b><br>
+		<center><span style="width:7%">?- </span><input type="text" id="consulta" value="hanoi(3)." onkeydown="if(event.keyCode==13)Consultar();"></center><br>
+		<center>
+		| <a href="javascript:Consultar()">Consultar</a>
+		| <a href="javascript:DebugLog('Simulating fail...');Provar()">Simular Falha</a>
+		| <a href="javascript:LerBancoFatos()">Ler Banco de Fatos</a>
+		| <a href="javascript:LimparSaida()">Limpar Saida</a> |
+		</center>
+		<table>
+			<tr style="height:20px">
+				<td><b>Saida:</b></td>
+				<td><b>Banco de Fatos:</b></td>
+			</tr>
+			<tr>
+				<td><textarea type="text" id="saida" readonly></textarea></td>
+				<td><textarea id="bf">hanoi(N) :- move(N, 'S', 'T', 'D').
+			
+move(0, _, _, _) :- !.
+
+move(N, A, B, C) :-
+	is(M,-(N,1)),
+	move(M, A, C, B),
+	inform(N, A, C),
+	move(M, B, A, C).
+
+inform(N,X, Y) :-
+	write(N),
+	write(' disk ('),
+	write(X),
+	write(' -> '),
+	write(Y),
+	write(')'),
+	nl.</textarea></td>
+			</tr>
+		</table>
+		<b>Depuração:</b>
+		<script>
+			var bf=document.getElementById("bf");
+			var saida=document.getElementById("saida");
+			var consulta=document.getElementById("consulta");
+			var provador;
+			var bancoFatos;
+			var termosPreCompilados=Parse("member(X, [X|_]).member(X, [_|Tail]) :- member(X,Tail).");
+			var interfaceProlog=[
+				new InterfaceProlog(Parse('write(X)'),function()
+				{
+					var X=this.parametros[0];
+					if(X.vinculado())
+					{
+						print(X.vinculo()+"");
+					}
+					return true;
+				}),
+				new InterfaceProlog(Parse('js(Code)'),function()
+				{
+					var X=this.parametros[0];
+					if(X.vinculado())
+					{
+						eval(X.vinculo()+"");
+					}
+					return true;
+				}),
+				new InterfaceProlog(Parse('nl'),function()
+				{
+					println();
+					return true;
+				}),
+				new InterfaceProlog(Parse('clear'),function()
+				{
+					LimparSaida();
+					return true;
+				})
+			];
+			function print(str)
+			{
+				saida.value+=str;
+				saida.scrollTop=saida.scrollHeight;
+			}
+			function println(str)
+			{
+				if(str!=undefined)print(str+"\r\n");
+				else print("\r\n");
+			}
+			function LimparSaida()
+			{
+				saida.value="";
+			}
+			function Provar()
+			{
+				if(provador==undefined)
+				{
+					println("% Erro ao Consultar: Certifique-se de que há um banco de fatos e uma consulta e não há nenhum erro de sintáxe em ambos! %");
+					return;
+				}
+				var ti=(new Date()).getTime();
+				var r=provador.Provar();
+				var tf=(new Date()).getTime();
+				var deltaT=tf-ti;
+				println("Tempo de execução: "+deltaT+" ms");
+				if(r)
+				{
+					if(provador.tipo==FATO)
+					{
+						var variaveis=new VariaveisEscopo(provador.consulta);
+						variaveis.normalizar();
+						for(var i=0;i<variaveis.length;i++)
+						{
+							var variavel=variaveis.at(i);
+							if(variavel.vinculada())
+							{
+								println("    "+variavel+" = "+variavel.vinculo());
+							}
+						}
+					}
+					else //tipo = REGRA
+					{
+						var variaveis=new VariaveisEscopo(new TermoComposto("",[],provador.consulta));
+						variaveis.normalizar();
+						for(var i=0;i<variaveis.length;i++)
+						{
+							var variavel=variaveis.at(i);
+							if(variavel.vinculada())
+							{
+								println("    "+variavel+" = "+variavel.vinculo());
+							}
+						}
+					}
+					println("  true.");
+				}
+				else println("  false.");
+				//println("% Tempo decorrido: "+deltaT+"ms %");			
+			}
+			function Consultar()
+			{
+				if(bancoFatos==undefined)
+				{
+					println("% Erro ao Consultar: O Banco de Fatos está indefinido! %");
+				}
+				else if(consulta.value=="")
+				{
+					println("% Erro ao Consultar: O campo de consulta está vazio! %");
+				}
+				else
+				{
+					provador=new Provador(termosPreCompilados.concat(bancoFatos),Parse(consulta.value),interfaceProlog);
+					println();
+					println("?- "+provador.consulta+".");
+					Provar();
+				}
+			}
+			function LerBancoFatos()
+			{
+				if(bf.value!="")
+				{
+					bancoFatos=Parse(bf.value);
+				}
+				else bancoFatos=[];
+				println("% O Banco de Fatos foi atualizado! %");
+			}
+			var debi=0;
+			LerBancoFatos();
+		</script>
+	</body>
+</html>		
+		
